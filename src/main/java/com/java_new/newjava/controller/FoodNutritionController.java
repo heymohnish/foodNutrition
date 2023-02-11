@@ -1,5 +1,6 @@
 package com.java_new.newjava.controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,37 +38,18 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/calculator")
-public class calculatorController {
+public class FoodNutritionController {
     @Autowired
     FoodNutritionRep fodNutritionRep;
+    @Value("${foodNutrient.edamam.acces_url}")
+    private String acces_url;
     
-    // RestTemplate restTemplate;
-
-    
-    @GetMapping(value = "/hello")
-    public ResponseEntity<?> calculate (@RequestBody calculatorReq cal) {
-        try {
-            // if(calculate.mode.equals(arithmeticOperator.addition)){
-            //     // return 
-            // }
-            calculator calc=new  calculator(cal);
-            System.out.println(calc.result);
-            // name mm=new name();
-            // mm.moni="mohnish;";
-            return new ResponseEntity<>(calc,
-                    HttpStatus.OK);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
-        }
-    }
     @GetMapping(value = "/food/{foodName}")
     public ResponseEntity<?> test (@PathVariable(name = "foodName") String foodName) {
         try {
-           RestTemplate restTemplate=new RestTemplate();
-           String url="https://api.edamam.com/api/food-database/v2/parser?app_id=5c0445e4&app_key=afbfae66102861e2893849edd07c2c4b&ingr="+foodName;
+            RestTemplate restTemplate=new RestTemplate();
+           String url=acces_url+foodName;
            Food food=restTemplate.getForObject(url,Food.class);
-        //    food
         fodNutritionRep.save(food).subscribe();
             return new ResponseEntity<>(food,
                     HttpStatus.OK);
@@ -76,22 +58,4 @@ public class calculatorController {
             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
         }
     }
-
-
-    @GetMapping(value = "/joji")
-    public ResponseEntity<calculator> calculater (@RequestBody calculatorReq cal) {
-        HttpHeaders headers = new HttpHeaders();
-        calculator user=new calculator(cal);
-        ResponseEntity<calculator> entity = new ResponseEntity<>(user,headers,HttpStatus.OK);
-        return entity;
-    }
-    // @GetMapping(value = "/food/{type}")
-    // public ResponseEntity<calculator> calculaterFood (@PathVariable(name = "orderId") String orderId) {
-    //     HttpHeaders headers = new HttpHeaders();
-    //     // calculator user=new calculator();
-    //     // getForObject 
-    //     // ResponseEntity<calculator> entity = restTemplate.getForObject("https://api.edamam.com/api/food-database/v2/parser?app_id=5c0445e4&app_key=afbfae66102861e2893849edd07c2c4b&ingr=tomato", HttpMethod.POST,null,
-    //     // calculator.class);
-    //     return "";
-    // }
 }

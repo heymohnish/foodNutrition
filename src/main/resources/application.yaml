@@ -1,0 +1,12 @@
+server:
+    port : 1234
+spring:
+    data:
+        mongodb:
+            database : FoodNutrition
+            host : localhost
+            port: 27017
+foodNutrient :
+        edamam :
+            base_url: "https://api.edamam.com/api/food-database/v2/parser"
+            acces_url : "https://api.edamam.com/api/food-database/v2/parser?app_id=5c0445e4&app_key=afbfae66102861e2893849edd07c2c4b&ingr="
