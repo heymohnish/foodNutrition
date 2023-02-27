@@ -1,4 +1,5 @@
 package com.java_new.newjava.controller;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -24,7 +25,7 @@ import com.java_new.newjava.model.calculator;
 import com.java_new.newjava.repository.FoodNutritionRep;
 import com.java_new.newjava.request.calculatorReq;
 import java.util.ArrayList;
- 
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -43,14 +44,14 @@ public class FoodNutritionController {
     FoodNutritionRep fodNutritionRep;
     @Value("${foodNutrient.edamam.acces_url}")
     private String acces_url;
-    
+
     @GetMapping(value = "/food/{foodName}")
-    public ResponseEntity<?> test (@PathVariable(name = "foodName") String foodName) {
+    public ResponseEntity<?> test(@PathVariable(name = "foodName") String foodName) {
         try {
-            RestTemplate restTemplate=new RestTemplate();
-           String url=acces_url+foodName;
-           Food food=restTemplate.getForObject(url,Food.class);
-        fodNutritionRep.save(food).subscribe();
+            RestTemplate restTemplate = new RestTemplate();
+            String url = acces_url + foodName;
+            Food food = restTemplate.getForObject(url, Food.class);
+            fodNutritionRep.save(food).subscribe();
             return new ResponseEntity<>(food,
                     HttpStatus.OK);
         } catch (Exception ex) {
