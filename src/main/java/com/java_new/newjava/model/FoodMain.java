@@ -5,7 +5,9 @@ public class FoodMain {
     public String label;
     public String knownAs;
     public String category;
+    public Nutrients nutrients;
     public String categoryLabel;
     public String image;
+
     
 }

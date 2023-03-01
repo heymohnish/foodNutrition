@@ -5,6 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.java_new.newjava.request.user.UserCreateReq;
 import com.java_new.newjava.service.SequenceGeneratorService;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
