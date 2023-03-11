@@ -14,11 +14,17 @@ import lombok.Setter;
 
 import lombok.*;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+@JsonInclude(Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -39,6 +45,7 @@ public class User {
     public String dob;
     public Double height;
     public Double weight;
+    public Double BMI;
     public Date created;
     public Date updated;
     public Boolean exist;
@@ -46,8 +53,10 @@ public class User {
 
 
 
+
     public User(UserCreateReq userCreateReq) {
-        this.id = SequenceGeneratorService.generateSequence(userShortcode);
+        if(userCreateReq.id==null)
+            this.id = SequenceGeneratorService.generateSequence(userShortcode);
         this.name = userCreateReq.name;
         this.mail = userCreateReq.mail;
         this.password = userCreateReq.password;
@@ -59,7 +68,19 @@ public class User {
         if(userCreateReq.id!=null){
             this.updated=new Date();
         }
+        this.BMI= caculateBMI(userCreateReq.height,userCreateReq.weight);
         this.created=new Date();
+    }
+
+
+
+
+    private Double caculateBMI(Double height, Double weight) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        Double BMI=Double.valueOf(df.format( (100*100*weight)/(height*height)));
+        // df.format(BMI);
+        return BMI;
+
     }
 
 }

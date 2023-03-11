@@ -48,22 +48,14 @@ public class UserController {
     @Autowired
     ReactiveMongoTemplate mongoOperations;
 
-    @GetMapping(value = "/check")
-    public ResponseEntity<?> hello() {
-        try {
-            return new ResponseEntity<>(DataResponse.builder().data("hello").build(), HttpStatus.OK);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
-        }
-    }
+
     @PostMapping(value = "/upsert")
     public ResponseEntity<?> userCreate(@RequestBody UserCreateReq userCreateReq) {
         try {
             UserService userService =new UserService(fodNutritionRep,userRepository,mongoOperations);
-            User user = new User(userCreateReq);
-            userService.checkuser(user.mail,null);
-            userRepository.save(user).subscribe();
+            User user=userService.upsert(userCreateReq);
+            
+           
             // DataResponse.builder().data(attendanceService.getAllAttendances()).build(), HttpStatus.OK
             return new ResponseEntity<>(DataResponse.builder().data(user.id).build(), HttpStatus.OK);
         } catch (Exception ex) {
@@ -79,6 +71,15 @@ public class UserController {
             // userService.();
             User single =userService.checkuser(mail, code);
             return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
+        }
+    }
+    @GetMapping(value = "/check")
+    public ResponseEntity<?> hello() {
+        try {
+            return new ResponseEntity<>(DataResponse.builder().data("hello").build(), HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);

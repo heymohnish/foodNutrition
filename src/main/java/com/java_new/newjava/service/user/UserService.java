@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import com.java_new.newjava.model.user.User;
 import com.java_new.newjava.repository.FoodNutritionRep;
 import com.java_new.newjava.repository.UserRepository;
+import com.java_new.newjava.request.user.UserCreateReq;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,22 @@ public class UserService {
             }
         }
         return single;
+    }
+
+    public User upsert(UserCreateReq userCreateReq) {
+        User user = new User(userCreateReq);
+        if(userCreateReq.id==null){
+            checkuser(user.mail,null);
+            userRepository.save(user).subscribe();
+        }
+        else{
+            user.id=userCreateReq.id;
+            userRepository.save(user).subscribe();
+        }
+        
+       return user;
+
+       
     }
 
     

@@ -9,6 +9,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
 import com.java_new.newjava.request.calculatorReq;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+@JsonInclude(Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
