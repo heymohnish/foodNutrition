@@ -1,5 +1,7 @@
 package com.java_new.newjava.controller.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -30,11 +32,6 @@ import com.java_new.newjava.request.calculatorReq;
 import com.java_new.newjava.request.user.UserCreateReq;
 import com.java_new.newjava.service.user.UserService;
 
-import jakarta.validation.constraints.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -54,9 +51,6 @@ public class UserController {
         try {
             UserService userService =new UserService(fodNutritionRep,userRepository,mongoOperations);
             User user=userService.upsert(userCreateReq);
-            
-           
-            // DataResponse.builder().data(attendanceService.getAllAttendances()).build(), HttpStatus.OK
             return new ResponseEntity<>(DataResponse.builder().data(user.id).build(), HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -68,8 +62,30 @@ public class UserController {
     @RequestParam(required = false, name = "code") String code) {
         try {
             UserService userService =new UserService(fodNutritionRep,userRepository,mongoOperations);
-            // userService.();
             User single =userService.checkuser(mail, code);
+            return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
+        }
+    }
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> userExist(@PathVariable String id ) {
+        try {
+            // UserService userService =new UserService(fodNutritionRep,userRepository,mongoOperations);
+            User single =userRepository.findById(id).blockOptional()
+            .orElseThrow(() -> new RuntimeException("Invalid trans Id " + id));
+            return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
+        }
+    }
+    @GetMapping(value = "/getAll")
+    public ResponseEntity<?> userGetall() {
+        try {
+            // UserService userService =new UserService(fodNutritionRep,userRepository,mongoOperations);
+            List<User> single =userRepository.findAll().collectList().block();
             return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -85,6 +101,17 @@ public class UserController {
             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
         }
     }
+    @DeleteMapping("/deleteAll")
+     public ResponseEntity<?> deleteAll(){
+        try {
+            userRepository.deleteAll().subscribe();
+            return new ResponseEntity<>(DataResponse.builder().data("Done").build(), HttpStatus.OK);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.OK);
+            // TODO: handle exception
+        }
+     }
    
 }
 

@@ -12,6 +12,15 @@ public class FoodMain {
     public Nutrients nutrients;
     public String categoryLabel;
     public String image;
+    //parsepost
+    public Double quantity;
+    public String measure;
+    public Double weight;
+    public Double retainedWeight;
+    public String food;
+    public String measureURI;
+    public String status;
+
 
     
 }
