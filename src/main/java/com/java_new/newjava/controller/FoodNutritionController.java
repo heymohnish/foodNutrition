@@ -3,6 +3,7 @@ package com.java_new.newjava.controller;
 // import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.annotation.Transient;
 // import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +34,27 @@ import com.java_new.newjava.model.Food;
 import com.java_new.newjava.model.FoodHints;
 import com.java_new.newjava.model.FoodMain;
 import com.java_new.newjava.model.Ingredients;
+import com.java_new.newjava.model.Nutrients;
 import com.java_new.newjava.model.arithmeticOperator;
 import com.java_new.newjava.model.calculator;
+import com.java_new.newjava.model.food.FoodCal;
+import com.java_new.newjava.model.food.FoodModel;
 import com.java_new.newjava.model.food.NutritionDataResponse;
 import com.java_new.newjava.model.food.NutritionResponse;
+import com.java_new.newjava.model.food.TotalNutrients;
+import com.java_new.newjava.model.user.User;
+import com.java_new.newjava.repository.FoodCalRepository;
 import com.java_new.newjava.repository.FoodNutritionRep;
+import com.java_new.newjava.repository.UserRepository;
 import com.java_new.newjava.request.calculatorReq;
+import com.java_new.newjava.request.food.FoodMainReq;
+import com.java_new.newjava.service.SequenceGeneratorService;
+
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -48,10 +62,16 @@ import java.util.List;
 public class FoodNutritionController {
     @Autowired
     FoodNutritionRep fodNutritionRep;
+    @Autowired
+    FoodCalRepository foodCalRepository;
+    @Autowired
+    UserRepository userRepository;
     @Value("${foodNutrient.edamam.base_url}")
     private String base_url;
     @Value("${foodNutrient.edamam.access_key}")
     private String access_key;
+    @Transient
+    public static final String foodShortcode = "FD";
 
     @GetMapping(value = "/name/{foodName}")
     public ResponseEntity<?> test(@PathVariable(name = "foodName") String foodName) {
@@ -68,7 +88,8 @@ public class FoodNutritionController {
                 hints.forEach(each -> {
                     Boolean check = false;
                     for (int i = 0; i < each.measures.size(); i++) {
-                        if (each.measures.get(i).label.equals("Gram")) {
+                        if (each.measures.get(i) != null && each.measures.get(i).label != null
+                                && each.measures.get(i).label.equals("Gram")) {
                             check = true;
                         }
                     }
@@ -104,21 +125,16 @@ public class FoodNutritionController {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<EdmanPost> requestEntity = new HttpEntity<EdmanPost>(token, headers);
             String url = base_url + "nutrients?" + access_key;
-            // try {
             ResponseEntity<Object> result = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
                     Object.class);
             Gson gson = new Gson();
             String json = gson.toJson(result);
-            // System.out.println(json);
-            JsonParser parser = new JsonParser();
-            JsonObject jsonObject = parser.parse(json).getAsJsonObject();
             NutritionDataResponse jj = gson.fromJson(json, NutritionDataResponse.class);
-            System.out.println(jj);
-            // } catch (Exception e) {
-            // System.out.println(e);
-            // // TODO: handle exception
-            // }
+            FoodCal foodCal = new FoodCal();
+            foodCal.nutrition = jj.body;
+            foodCal.id = "ds";
 
+            foodCalRepository.save(foodCal).subscribe();
             return new ResponseEntity<>(jj.body, HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -126,30 +142,127 @@ public class FoodNutritionController {
         }
     }
 
-    @PostMapping(value = "/postFood")
-    public ResponseEntity<?> postFood(@RequestParam(required = true, name = "userId") String userId,
-            @RequestParam(required = true, name = "qty") Integer qty,
-            @RequestParam(required = true, name = "foodId") String foodId) {
+    // @PutMapping(value = "/postFood")
+    // public ResponseEntity<?> postFood(
+    //         @RequestParam(required = true, name = "qty") Integer qty,
+    //         @RequestParam(required = true, name = "foodId") String foodId) {
+    //     try {
+    //         RestTemplate restTemplate = new RestTemplate();
+    //         EdmanPost token = new EdmanPost();
+    //         token.ingredients = new ArrayList<>();
+    //         Ingredients ingredientsModel = new Ingredients();
+    //         ingredientsModel.quantity = 100;
+    //         ingredientsModel.foodId = foodId;
+    //         ingredientsModel.measureURI = "http://www.edamam.com/ontologies/edamam.owl#Measure_gram";
+    //         token.ingredients.add(ingredientsModel);
+    //         System.out.println(token);
+    //         HttpHeaders headers = new HttpHeaders();
+    //         headers.setContentType(MediaType.APPLICATION_JSON);
+    //         HttpEntity<EdmanPost> requestEntity = new HttpEntity<EdmanPost>(token, headers);
+    //         String url = base_url + "nutrients?" + access_key;
+    //         ResponseEntity<Object> result = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
+    //                 Object.class);
+    //         Gson gson = new Gson();
+    //         String json = gson.toJson(result);
+    //         NutritionDataResponse nutritionDataResponse = gson.fromJson(json, NutritionDataResponse.class);
+    //         FoodCal foodCal = new FoodCal();
+    //         foodCal.created = new Date();
+    //         foodCal.id = SequenceGeneratorService.generateSequence(foodShortcode);
+    //         // foodCal.nutrition = nutritionDataResponse.body;
+    //         // nutritionDataResponse.body.
+    //         // foodCal
+    //         Map<String, TotalNutrients> tn = new HashMap<>();
+    //         for (Map.Entry<String, TotalNutrients> entry : nutritionDataResponse.body.totalNutrients.entrySet()) {
+    //             if (entry.getKey().contains(".")) {
+    //                 System.out.println("-----------------");
+    //             } else {
+    //                 tn.put(entry.getKey(), entry.getValue());
+    //             }
+    //         }
+    //         Map<String, TotalNutrients> dn = new HashMap<>();
+    //         for (Map.Entry<String, TotalNutrients> entry : nutritionDataResponse.body.totalDaily.entrySet()) {
+    //             if (entry.getKey().contains(".")) {
+    //                 System.out.println("-----------------");
+    //             } else {
+    //                 dn.put(entry.getKey(), entry.getValue());
+    //             }
+    //         }
+    //         nutritionDataResponse.body.totalDaily = dn;
+    //         nutritionDataResponse.body.totalNutrients = tn;
+    //         foodCal.nutrition = nutritionDataResponse.body;
+    //         if (single.foodList == null || single.foodList.size() < 0) {
+    //             single.foodList = new ArrayList<FoodCal>();
+    //             single.foodList.add(foodCal);
+    //         } else {
+    //             single.foodList.add(foodCal);
+    //         }
+    //         single.totalCal += nutritionDataResponse.body.calories;
+    //         userRepository.save(single).subscribe();
+    //         return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
+    //     } catch (Exception ex) {
+    //         System.out.println(ex.getMessage());
+    //         return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
+    //     }
+    // }
+
+    @PostMapping(value = "/minipost")
+    public ResponseEntity<?> postMinFood(@RequestBody FoodMainReq foodMainReq,
+            @RequestParam(required = true, name = "userId") String userId,
+            @RequestParam(required = true, name = "qty") Double qty) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            EdmanPost token = new EdmanPost();
-            token.ingredients = new ArrayList<>();
-            Ingredients ingredientsModel = new Ingredients();
-            ingredientsModel.quantity = qty;
-            ingredientsModel.foodId = foodId;
-            ingredientsModel.measureURI = "http://www.edamam.com/ontologies/edamam.owl#Measure_gram";
-            token.ingredients.add(ingredientsModel);
-            System.out.println(token);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<EdmanPost> requestEntity = new HttpEntity<EdmanPost>(token, headers);
-            String url = base_url + "nutrients?" + access_key;
-            ResponseEntity<Object> result = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
-                    Object.class);
-            return new ResponseEntity<>(result.getBody(), HttpStatus.OK);
+            User single = userRepository.findById(userId).blockOptional()
+                    .orElseThrow(() -> new RuntimeException("Invalid trans Id " + userId));
+            FoodModel fssai = new FoodModel();
+            fssai.id = foodMainReq.foodId;
+            fssai.qty = qty;
+            fssai.lable = foodMainReq.label;
+            fssai.time = new Date();
+            if (single.foodModel == null || single.foodModel.size() < 0) {
+                single.foodModel = new ArrayList<>();
+                single.foodModel.add(fssai);
+            } else {
+                single.foodModel.add(fssai);
+            }
+            if (foodMainReq.nutrients != null) {
+                Nutrients nutrients = foodMainReq.nutrients;
+                if (nutrients.CHOCDF != null) {
+                    if (single.total_CHOCDF == null) {
+                        single.total_CHOCDF = 0.00;
+                    }
+                    single.total_CHOCDF += (nutrients.CHOCDF * (qty / 100));
+                }
+                if (nutrients.ENERC_KCAL != null) {
+                    if (single.total_ENERC_KCAL == null) {
+                        single.total_ENERC_KCAL = 0.00;
+                    }
+                    single.total_ENERC_KCAL += (nutrients.ENERC_KCAL * (qty / 100));
+                }
+                if (nutrients.PROCNT != null) {
+                    if (single.total_PROCNT == null) {
+                        single.total_PROCNT = 0.00;
+                    }
+                    single.total_PROCNT += (nutrients.PROCNT * (qty / 100));
+                }
+                if (nutrients.FAT != null) {
+                    if (single.total_FAT == null) {
+                        single.total_FAT = 0.00;
+                    }
+                    single.total_FAT += (nutrients.FAT * (qty / 100));
+                }
+                if (nutrients.FIBTG != null) {
+                    if (single.total_FIBTG == null) {
+                        single.total_FIBTG = 0.00;
+                    }
+                    single.total_FIBTG += (nutrients.FIBTG * (qty / 100));
+                }
+
+            }
+            userRepository.save(single).subscribe();
+            return new ResponseEntity<>(DataResponse.builder().data(single).build(), HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }
     }
+
 }

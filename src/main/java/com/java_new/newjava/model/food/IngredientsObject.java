@@ -7,6 +7,6 @@ import com.java_new.newjava.model.FoodMainParsed;
 
 public class IngredientsObject {
     public List<FoodMain> parsed;
-
+    // FoodMainParsed
     
 }

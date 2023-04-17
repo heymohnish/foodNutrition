@@ -65,6 +65,11 @@ public class UserService {
         User user = new User(userCreateReq);
         if(userCreateReq.id==null){
             checkuser(user.mail,null);
+            user.total_CHOCDF=0.00;
+            user.total_ENERC_KCAL=0.00;
+            user.total_FAT=0.00;
+            user.total_FIBTG=0.00;
+            user.total_PROCNT=0.00;
             userRepository.save(user).subscribe();
         }
         else{

@@ -2,6 +2,8 @@ package com.java_new.newjava.model.user;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.java_new.newjava.model.food.FoodCal;
+import com.java_new.newjava.model.food.FoodModel;
 import com.java_new.newjava.request.user.UserCreateReq;
 import com.java_new.newjava.service.SequenceGeneratorService;
 
@@ -17,6 +19,7 @@ import lombok.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -35,7 +38,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class User {
     @Transient
     public static final String userShortcode = "USR";
-
     @Id
     public String id;
     public String name;
@@ -58,6 +60,18 @@ public class User {
     public Date created;
     public Date updated;
     public Boolean exist;
+    public Integer totalCal;
+    public Double total_ENERC_KCAL;
+    public Double total_PROCNT;
+    public Double total_FAT;
+    public Double total_CHOCDF;
+    public Double total_FIBTG;
+    public List<FoodCal> foodList;
+    public List<Object> tryd;
+    public List<FoodModel> foodModel;
+    // created
+
+
 
     public User(UserCreateReq userCreateReq) {
         if (userCreateReq.id == null)
