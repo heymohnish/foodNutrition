@@ -107,7 +107,17 @@ public class FoodNutritionController {
             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }
     }
-
+@GetMapping(value = "/hello")
+    public ResponseEntity<?> userHello(@RequestParam(required = false, name = "mail") String mail,
+            @RequestParam(required = false, name = "code") String code) {
+        try {
+           return new ResponseEntity<>(DataResponse.builder().data("heloMohnish").build(), HttpStatus.OK);
+            
+        } catch (Exception ex) {
+            // TODO: handle exception
+             return new ResponseEntity<>(DataResponse.builder().error(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
+        
+        }}
     @PostMapping(value = "/post")
     public ResponseEntity<?> userCreate(@RequestParam(required = false, name = "mail") String mail,
             @RequestParam(required = false, name = "code") String code) {
