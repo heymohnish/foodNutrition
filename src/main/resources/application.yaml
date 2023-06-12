@@ -4,8 +4,11 @@ spring:
     data:
         mongodb:
             database : FoodNutrition
-            host : localhost
-            port: 27017
+            host : containers-us-west-102.railway.app
+            port: 6073
+            uri : mongodb://mongo:XkIYHLUkEqQEvp26bSzY@containers-us-west-102.railway.app:6073
+            password : XkIYHLUkEqQEvp26bSzY
+            username : mongo
 foodNutrient :
         edamam :
             base_url: "https://api.edamam.com/api/food-database/v2/"
